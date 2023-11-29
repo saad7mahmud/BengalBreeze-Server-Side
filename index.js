@@ -183,8 +183,44 @@ async function run() {
       );
       res.send(result);
     });
-
     // ----------------------
+    // Verify Property
+    app.patch("/verify/property/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const finalUpdateInfo = {
+        $set: {
+          verificationStatus: "verified",
+        },
+      };
+      const result = await propertiesCollection.updateOne(
+        query,
+        finalUpdateInfo,
+        options
+      );
+      res.send(result);
+    });
+    // ----------------------
+    // Reject Property
+    app.patch("/reject/property/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const finalUpdateInfo = {
+        $set: {
+          verificationStatus: "rejected",
+        },
+      };
+      const result = await propertiesCollection.updateOne(
+        query,
+        finalUpdateInfo,
+        options
+      );
+      res.send(result);
+    });
+    // ----------------------
+
     // Update User Role - Make Agent
     app.patch("/users/agent/:id", async (req, res) => {
       const id = req.params.id;
