@@ -25,8 +25,9 @@ async function run() {
   try {
     // Create Collections
     const userCollection = client.db("BengalBreezeDB").collection("users");
+    const propertiesCollection = client.db("BengalBreezeDB").collection("properties");
 
-    // Send All Food Data Data To DB
+    // Send All user Data Data To DB
     app.post("/users", async (req, res) => {
       const userInfo = req.body;
       console.log("user info", userInfo);
@@ -36,6 +37,13 @@ async function run() {
         return res.send({ message: "user already exist to db" });
       }
       const result = await userCollection.insertOne(userInfo);
+      res.send(result);
+    });
+    // Send All Property Data Data To DB
+    app.post("/add/properties", async (req, res) => {
+      const propertyInfo = req.body;
+      console.log("property info", propertyInfo);
+      const result = await propertiesCollection.insertOne(propertyInfo);
       res.send(result);
     });
 
@@ -100,6 +108,14 @@ async function run() {
     });
 
     // ----------------------
+    // Get All Properties From DB
+
+    app.get("/agent-properties", verifyToken, async (req, res) => {
+      const result = await propertiesCollection.find().toArray();
+      res.send(result);
+    });
+
+    // ----------------------
     // Get User/admin to check
 
     app.get("/users/admin/:email", verifyToken, async (req, res) => {
@@ -115,6 +131,24 @@ async function run() {
         admin = user?.role == "admin";
       }
       res.send({ admin });
+    });
+
+    // ----------------------
+    // Get User/agent to check
+
+    app.get("/users/agent/:email", verifyToken, async (req, res) => {
+      const email = req.params.email; //get from front
+      if (email != req.decoded.email) {
+        return res.status(403).send({ message: "Unauthorized Access" });
+      }
+
+      const query = { email: email };
+      const user = await userCollection.findOne(query);
+      let agent = false;
+      if (user) {
+        agent = user?.role == "agent";
+      }
+      res.send({ agent });
     });
 
     // ----------------------
