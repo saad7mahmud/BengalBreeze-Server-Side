@@ -110,9 +110,28 @@ async function run() {
     });
 
     // ----------------------
-    // Get All Properties From DB
+    // Get All Properties From DB for agent
 
     app.get("/agent-properties", verifyToken, verifyAgent, async (req, res) => {
+      const agentMailInfo = req.query.loggedAgentEmail;
+      console.log("mail check", agentMailInfo);
+      query = { agentEmail: agentMailInfo };
+      const result = await propertiesCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // ----------------------
+    // Get All Properties From DB for admin
+
+    app.get("/all-properties", verifyToken, verifyAdmin, async (req, res) => {
+      const result = await propertiesCollection.find().toArray();
+      res.send(result);
+    });
+
+    // ----------------------
+    // Get All Properties for admin advertise
+
+    app.get("/properties/ad", verifyToken, verifyAdmin, async (req, res) => {
       const result = await propertiesCollection.find().toArray();
       res.send(result);
     });
