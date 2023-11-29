@@ -25,7 +25,9 @@ async function run() {
   try {
     // Create Collections
     const userCollection = client.db("BengalBreezeDB").collection("users");
-    const propertiesCollection = client.db("BengalBreezeDB").collection("properties");
+    const propertiesCollection = client
+      .db("BengalBreezeDB")
+      .collection("properties");
 
     // Send All user Data Data To DB
     app.post("/users", async (req, res) => {
@@ -110,7 +112,7 @@ async function run() {
     // ----------------------
     // Get All Properties From DB
 
-    app.get("/agent-properties", verifyToken, async (req, res) => {
+    app.get("/agent-properties", verifyToken, verifyAgent, async (req, res) => {
       const result = await propertiesCollection.find().toArray();
       res.send(result);
     });
@@ -219,6 +221,55 @@ async function run() {
       );
       res.send(result);
     });
+    // ----------------------
+
+    // Advertise YES
+    app.patch("/add-advertise/property/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const finalUpdateInfo = {
+        $set: {
+          isAdvertised: "yes",
+        },
+      };
+      const result = await propertiesCollection.updateOne(
+        query,
+        finalUpdateInfo,
+        options
+      );
+      res.send(result);
+    });
+    // ----------------------
+    // Advertise NO - remove
+    app.patch("/remove-advertise/property/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const finalUpdateInfo = {
+        $set: {
+          isAdvertised: "no",
+        },
+      };
+      const result = await propertiesCollection.updateOne(
+        query,
+        finalUpdateInfo,
+        options
+      );
+      res.send(result);
+    });
+    // ----------------------
+
+    // Delete A User
+
+    app.delete("/property/:id", async (req, res) => {
+      const id = req.params.id; //get from front
+      const query = { _id: new ObjectId(id) };
+      const result = await propertiesCollection.deleteOne(query);
+      console.log(result);
+      res.send(result);
+    });
+
     // ----------------------
 
     // Update User Role - Make Agent
