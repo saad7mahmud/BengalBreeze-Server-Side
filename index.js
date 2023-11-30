@@ -25,6 +25,9 @@ async function run() {
   try {
     // Create Collections
     const userCollection = client.db("BengalBreezeDB").collection("users");
+    const wishlistCollection = client
+      .db("BengalBreezeDB")
+      .collection("wishlist");
     const propertiesCollection = client
       .db("BengalBreezeDB")
       .collection("properties");
@@ -46,6 +49,13 @@ async function run() {
       const propertyInfo = req.body;
       console.log("property info", propertyInfo);
       const result = await propertiesCollection.insertOne(propertyInfo);
+      res.send(result);
+    });
+    // Send A property Data to wishlist collection
+    app.post("/property/wishlists", async (req, res) => {
+      const propertyInfo = req.body;
+      console.log("property info57", propertyInfo);
+      const result = await wishlistCollection.insertOne(propertyInfo);
       res.send(result);
     });
 
@@ -121,6 +131,16 @@ async function run() {
     });
 
     // ----------------------
+    // Get All wishlist for a user
+    app.get("/user-wishlists", verifyToken, async (req, res) => {
+      const userMailInfo = req.query.loggedUserEmail;
+      console.log("mail check", userMailInfo);
+      query = { buyerEmail: userMailInfo };
+      const result = await wishlistCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // ----------------------
     // Get All Properties From DB for admin
 
     app.get("/all-properties", verifyToken, verifyAdmin, async (req, res) => {
@@ -138,7 +158,7 @@ async function run() {
     // Get A Property
     app.get("/one-property/:id", async (req, res) => {
       const id = req.params.id;
-      console.log('one',id);
+      console.log("one", id);
       const query = { _id: new ObjectId(id) };
       const result = await propertiesCollection.findOne(query);
       res.send(result);
@@ -295,12 +315,23 @@ async function run() {
     });
     // ----------------------
 
-    // Delete A User
+    // Delete A property
 
     app.delete("/property/:id", async (req, res) => {
       const id = req.params.id; //get from front
       const query = { _id: new ObjectId(id) };
       const result = await propertiesCollection.deleteOne(query);
+      console.log(result);
+      res.send(result);
+    });
+
+    // ----------------------
+    // Delete A Wishlist
+
+    app.delete("/wishlists/:id", async (req, res) => {
+      const id = req.params.id; //get from front
+      const query = { _id: new ObjectId(id) };
+      const result = await wishlistCollection.deleteOne(query);
       console.log(result);
       res.send(result);
     });
