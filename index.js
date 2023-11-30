@@ -155,6 +155,12 @@ async function run() {
       const result = await propertiesCollection.find(query).toArray();
       res.send(result);
     });
+    // Get All Properties if advertised
+    app.get("/all-properties/advertised", verifyToken, async (req, res) => {
+      const query = { isAdvertised: "yes" };
+      const result = await propertiesCollection.find(query).toArray();
+      res.send(result);
+    });
     // Get A Property
     app.get("/one-property/:id", async (req, res) => {
       const id = req.params.id;
