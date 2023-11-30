@@ -157,7 +157,9 @@ async function run() {
     });
     // Get All Properties if advertised
     app.get("/all-properties/advertised", verifyToken, async (req, res) => {
-      const query = { isAdvertised: "yes" };
+      const query = {
+        $and: [{ isAdvertised: "yes" }, { verificationStatus: "verified" }],
+      };
       const result = await propertiesCollection.find(query).toArray();
       res.send(result);
     });
@@ -174,7 +176,9 @@ async function run() {
     // Get All Properties for admin advertise
 
     app.get("/properties/ad", verifyToken, verifyAdmin, async (req, res) => {
-      const result = await propertiesCollection.find().toArray();
+      const query = { verificationStatus: "verified" };
+
+      const result = await propertiesCollection.find(query).toArray();
       res.send(result);
     });
 
