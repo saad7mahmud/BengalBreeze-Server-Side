@@ -25,6 +25,7 @@ async function run() {
   try {
     // Create Collections
     const userCollection = client.db("BengalBreezeDB").collection("users");
+    const reviewCollection = client.db("BengalBreezeDB").collection("reviews");
     const wishlistCollection = client
       .db("BengalBreezeDB")
       .collection("wishlist");
@@ -44,6 +45,14 @@ async function run() {
       const result = await userCollection.insertOne(userInfo);
       res.send(result);
     });
+    // Send All REVIEW Data To DB
+    app.post("/reviews", async (req, res) => {
+      const reviewInfo = req.body;
+      console.log("review info", reviewInfo);
+      const result = await reviewCollection.insertOne(reviewInfo);
+      res.send(result);
+    });
+
     // Send All Property Data Data To DB
     app.post("/add/properties", async (req, res) => {
       const propertyInfo = req.body;
@@ -141,6 +150,31 @@ async function run() {
     });
 
     // ----------------------
+    // Get All REVIEW for a user
+    app.get("/review/user", verifyToken, async (req, res) => {
+      const userMailInfo = req.query.loggedUserEmail;
+      console.log("mail check", userMailInfo);
+      query = { reviewerEmail: userMailInfo };
+      const result = await reviewCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // ----------------------
+    // Get All REVIEW
+    app.get("/all-reviews", verifyToken, verifyAdmin, async (req, res) => {
+      const result = await reviewCollection.find().toArray();
+      res.send(result);
+    });
+    // Get All REVIEW for public
+    app.get("/all-reviews/public", async (req, res) => {
+      const result = await reviewCollection
+        .find()
+        .sort({ nowInMilliseconds: -1 })
+        .toArray();
+      res.send(result);
+    });
+
+    // ----------------------
     // Get All Properties From DB for admin
 
     app.get("/all-properties", verifyToken, verifyAdmin, async (req, res) => {
@@ -156,7 +190,7 @@ async function run() {
       res.send(result);
     });
     // Get All Properties if advertised
-    app.get("/all-properties/advertised", verifyToken, async (req, res) => {
+    app.get("/all-properties/advertised", async (req, res) => {
       const query = {
         $and: [{ isAdvertised: "yes" }, { verificationStatus: "verified" }],
       };
@@ -169,6 +203,14 @@ async function run() {
       console.log("one", id);
       const query = { _id: new ObjectId(id) };
       const result = await propertiesCollection.findOne(query);
+      res.send(result);
+    });
+    // Get relevant reviews
+    app.get("/specific-reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log("reviews", id);
+      const query = { propertyId: id };
+      const result = await reviewCollection.find(query).toArray();
       res.send(result);
     });
 
@@ -222,7 +264,7 @@ async function run() {
 
     // Delete A User
 
-    app.delete("/users/:id", async (req, res) => {
+    app.delete("/users/:id",verifyAdmin, async (req, res) => {
       const id = req.params.id; //get from front
       const query = { _id: new ObjectId(id) };
       const result = await userCollection.deleteOne(query);
@@ -233,7 +275,7 @@ async function run() {
     // ----------------------
 
     // Update User Role - Make Admin
-    app.patch("/users/admin/:id", async (req, res) => {
+    app.patch("/users/admin/:id",verifyAdmin, async (req, res) => {
       const id = req.params.id;
       // const updatedUserInfo = req.body;
       const query = { _id: new ObjectId(id) };
@@ -252,7 +294,7 @@ async function run() {
     });
     // ----------------------
     // Verify Property
-    app.patch("/verify/property/:id", async (req, res) => {
+    app.patch("/verify/property/:id",verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -270,7 +312,7 @@ async function run() {
     });
     // ----------------------
     // Reject Property
-    app.patch("/reject/property/:id", async (req, res) => {
+    app.patch("/reject/property/:id",verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -289,7 +331,7 @@ async function run() {
     // ----------------------
 
     // Advertise YES
-    app.patch("/add-advertise/property/:id", async (req, res) => {
+    app.patch("/add-advertise/property/:id",verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -307,7 +349,7 @@ async function run() {
     });
     // ----------------------
     // Advertise NO - remove
-    app.patch("/remove-advertise/property/:id", async (req, res) => {
+    app.patch("/remove-advertise/property/:id",verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -347,9 +389,20 @@ async function run() {
     });
 
     // ----------------------
+    // Delete A review for user
+
+    app.delete("/reviews/:id", verifyToken, async (req, res) => {
+      const id = req.params.id; //get from front
+      const query = { _id: new ObjectId(id) };
+      const result = await reviewCollection.deleteOne(query);
+      console.log(result);
+      res.send(result);
+    });
+
+    // ----------------------
 
     // Update User Role - Make Agent
-    app.patch("/users/agent/:id", async (req, res) => {
+    app.patch("/users/agent/:id",verifyAdmin, async (req, res) => {
       const id = req.params.id;
       // const updatedUserInfo = req.body;
       const query = { _id: new ObjectId(id) };
