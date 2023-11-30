@@ -129,6 +129,22 @@ async function run() {
     });
 
     // ----------------------
+    // Get All Properties if admin verified
+    app.get("/all-properties/verified", verifyToken, async (req, res) => {
+      const query = { verificationStatus: "verified" };
+      const result = await propertiesCollection.find(query).toArray();
+      res.send(result);
+    });
+    // Get A Property
+    app.get("/one-property/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log('one',id);
+      const query = { _id: new ObjectId(id) };
+      const result = await propertiesCollection.findOne(query);
+      res.send(result);
+    });
+
+    // ----------------------
     // Get All Properties for admin advertise
 
     app.get("/properties/ad", verifyToken, verifyAdmin, async (req, res) => {
@@ -309,6 +325,8 @@ async function run() {
       );
       res.send(result);
     });
+
+    // ----------------------
 
     // ----------------------
 
