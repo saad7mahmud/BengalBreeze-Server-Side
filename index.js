@@ -260,11 +260,11 @@ async function run() {
       res.send({ agent });
     });
 
-    // ----------------------
+    // ---------------------
 
     // Delete A User
 
-    app.delete("/users/:id",verifyAdmin, async (req, res) => {
+    app.delete("/users/:id", async (req, res) => {
       const id = req.params.id; //get from front
       const query = { _id: new ObjectId(id) };
       const result = await userCollection.deleteOne(query);
@@ -275,7 +275,7 @@ async function run() {
     // ----------------------
 
     // Update User Role - Make Admin
-    app.patch("/users/admin/:id",verifyAdmin, async (req, res) => {
+    app.patch("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
       // const updatedUserInfo = req.body;
       const query = { _id: new ObjectId(id) };
@@ -294,7 +294,7 @@ async function run() {
     });
     // ----------------------
     // Verify Property
-    app.patch("/verify/property/:id",verifyAdmin, async (req, res) => {
+    app.patch("/verify/property/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -312,7 +312,7 @@ async function run() {
     });
     // ----------------------
     // Reject Property
-    app.patch("/reject/property/:id",verifyAdmin, async (req, res) => {
+    app.patch("/reject/property/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -331,7 +331,7 @@ async function run() {
     // ----------------------
 
     // Advertise YES
-    app.patch("/add-advertise/property/:id",verifyAdmin, async (req, res) => {
+    app.patch("/add-advertise/property/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -349,7 +349,7 @@ async function run() {
     });
     // ----------------------
     // Advertise NO - remove
-    app.patch("/remove-advertise/property/:id",verifyAdmin, async (req, res) => {
+    app.patch("/remove-advertise/property/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -402,7 +402,7 @@ async function run() {
     // ----------------------
 
     // Update User Role - Make Agent
-    app.patch("/users/agent/:id",verifyAdmin, async (req, res) => {
+    app.patch("/users/agent/:id", async (req, res) => {
       const id = req.params.id;
       // const updatedUserInfo = req.body;
       const query = { _id: new ObjectId(id) };
